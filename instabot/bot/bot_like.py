@@ -2,19 +2,23 @@ from tqdm import tqdm
 import time
 
 
-def like(
-    self,
-    media_id,
-    check_media=True,
-    container_module="feed_short_url",
-    feed_position=0,
-    username=None,
-    user_id=None,
-    hashtag_name=None,
-    hashtag_id=None,
-    entity_page_name=None,
-    entity_page_id=None,
-):
+def like_medias(self, medias, check_media=True):
+    broken_items = []
+    if not medias:
+        self.logger.info("Nothing to like.")
+        return broken_items
+    self.logger.info("Start Logging")
+    self.logger.info("Going to like %d medias." % (len(medias)))
+    start_count = self.total['likes'] # この行追加
+    for media in tqdm(medias):
+        if not self.like(media, check_media):
+            self.error_delay()
+            broken_items.append(media)
+        self.logger.info("Total Like:" + str(self.total['likes']))            
+        if self.total['likes'] != start_count and self.total['likes'] % 20 == 0: # この行追加/ここで一回につきどれだけいいねするかを制御
+            break
+    self.logger.info("DONE: Total liked %d medias." % self.total['likes'])
+    return broken_items
 
     if not self.reached_limit("likes"):
         if self.blocked_actions["likes"]:
